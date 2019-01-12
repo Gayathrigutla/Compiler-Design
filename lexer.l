@@ -147,6 +147,7 @@ INVALID (.?)
 JUMP break|continue|goto
 CONDITIONAL else|switch|if|case|default
 LOOP for|do|while
+WRONG_ID ([0-9]|!|@|#|$|%)+([a-zA-Z0-9])+
 
 %%
 [ \n\t] ;
@@ -176,7 +177,7 @@ LOOP for|do|while
 {OPERATOR} {printf("%s \t- ARITHMETIC OPERATOR\n", yytext);} 
 {BITWISE} {printf("%s \t- BITWISE OPERATOR\n", yytext);}
 {COMPARISON} {printf("%s \t- COMPARISON OPERATOR\n", yytext);}
-
+{WRONG_ID} {printf("%s \t- WRONG IDENTIFIER\n", yytext);}
 {INVALID} {printf("%s \t- INVALID\n", yytext);}
 %%
 
