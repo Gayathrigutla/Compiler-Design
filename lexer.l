@@ -3,11 +3,8 @@
     
     #include<stdio.h>
     #include<string.h>
-    int pstack[100];
-   int ptop=-1;
-   int cstack[100];
-   int ctop=-1;
-   
+    char bstack[100];
+   int btop=-1;
    int nested_comment_stack=0;
     int line=0;
     struct hashtable{
@@ -164,10 +161,30 @@ LOOP for|do|while
 [\t] ;
 ; {printf("%s \t- SEMICOLON DELIMITER\n", yytext);}
 , {printf("%s \t- COMMA DELIMITER\n", yytext);}
-\{ {printf("%s \t- OPENING BRACES\n", yytext);}
-\} {printf("%s \t- CLOSING BRACES\n", yytext);}
-\( {printf("%s \t- OPENING BRACKETS\n", yytext);}
-\) {printf("%s \t- CLOSING BRACKETS\n", yytext);}
+\{ {printf("%s \t- OPENING BRACES\n", yytext);
+	if(btop==-1){
+		bstack[0]='{'; btop=1;}
+	else {bstack[btop]='{';
+	btop++;}
+	}
+\} {printf("%s \t- CLOSING BRACES\n", yytext);
+	printf("%c\n",bstack[btop]);
+	if(bstack[btop-1]!='{')
+		printf("Unbalanced paranthesis on line no. %d\n",line);
+	btop--;
+	}
+\( {printf("%s \t- OPENING BRACKETS\n", yytext);
+	if(btop==-1){
+		bstack[0]='('; btop=1;}
+	else {bstack[btop]='(';
+	btop++;}
+	}
+\) {printf("%s \t- CLOSING BRACKETS\n", yytext);
+	printf("%c\n",bstack[btop]);
+	if(bstack[btop-1]!='(')
+		printf("Unbalanced paranthesis on line no. %d\n",line);
+	btop--;
+	}
 \\ {printf("%s \t- FSLASH\n", yytext);}
 \. {printf("%s \t- DOT DELIMITER\n", yytext);}
 "/*"                    {BEGIN(comment); nested_comment_stack=1; yymore();}
