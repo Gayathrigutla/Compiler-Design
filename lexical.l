@@ -14,6 +14,7 @@ var [ \t]*(unsigned|signed)?(void|int|char|short|long|float|double){white_space}
 wrong_id ([0-9]|!|@|#|$|%)+([a-zA-Z0-9])+
 operator [\+\-\*\/\%]
 bitwise [\|\&\^\~]
+multiline "/*"([^*]|\*+[^*/])*\*+"/"
 
 %%
 end {return 0;}
@@ -28,6 +29,7 @@ end {return 0;}
 {operator} {ECHO; printf(" is an arithmetic operator\n");}
 {bitwise} {ECHO; printf(" is a bitwise operator\n");}
 {wrong_id} {printf("Invalid identifier on line no. %d\n",line);}
+{multiline} {printf("%s \t- MULTI LINE COMMENT\n", yytext);}
 
 %%
 

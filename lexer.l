@@ -129,22 +129,29 @@ DIV \/
 REM %
 AND &
 OR \|
+XOR \^
+NOT \~
 
 PREPROCESSOR #include<.*>|#define.*
 STRING \".*\"|\'.*\'
 SINGLELINE \/\/.*
 ARRAY .*\[[0-9]+\]
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
-KEYWORD auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|main 
+KEYWORD auto|char|const|default|double|enum|extern|float|int|long|register|return|short|signed|sizeof|static|struct|typedef|union|unsigned|void|volatile|main 
 IDENTIFIER [a-z|A-Z]([a-z|A-Z]|[0-9])*
 NUMBER_CONSTANT [1-9][0-9]*|0 
-OPERATOR {PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}|{LEQ}|{GEQ}|{LES}|{GRE}|{REM}|{AND}|{OR}
+OPERATOR {PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
+COMPARISON {LEQ}|{GEQ}|{LES}|{GRE}
+BITWISE {XOR}|{REM}|{AND}|{OR}|{NOT}
 INVALID (.?)
+JUMP break|continue|goto
+CONDITIONAL else|switch|if|case|default
+LOOP for|do|while
 
 %%
 [ \n\t] ;
-; {printf("%s \t- SEMICOL DELIMITER\n", yytext);}
-, {printf("%s \t- COMM DELIMITER\n", yytext);}
+; {printf("%s \t- SEMICOLON DELIMITER\n", yytext);}
+, {printf("%s \t- COMMA DELIMITER\n", yytext);}
 \{ {printf("%s \t- OPENING BRACES\n", yytext);}
 \} {printf("%s \t- CLOSING BRACES\n", yytext);}
 \( {printf("%s \t- OPENING BRACKETS\n", yytext);}
@@ -158,13 +165,17 @@ INVALID (.?)
 
 {MULTILINE} {printf("%s \t- MULTI LINE COMMENT\n", yytext);}
 
-{KEYWORD} {printf("%s \t- KEYWORD\n", yytext); insert(yytext, "KEYBOARD");}
-
+{KEYWORD} {printf("%s \t- KEYWORD\n", yytext); insert(yytext, "KEYWORD");}
+{JUMP} {printf("%s \t- JUMP KEYWORD\n", yytext); insert(yytext, "JUMP");}
+{CONDITIONAL} {printf("%s \t- CONDITIONAL KEYWORD\n", yytext); insert(yytext, "CONDITIONAL");}
+{LOOP} {printf("%s \t- LOOP KEYWORD\n", yytext); insert(yytext, "LOOP");}
 {IDENTIFIER} {printf("%s \t- IDENTIFIER\n", yytext); insert(yytext, "IDENTIFIER");}
 
 {NUMBER_CONSTANT} {printf("%s \t- NUMBER CONSTANT\n", yytext); insert2(yytext, "NUMBER CONSTANT");}
 
-{OPERATOR} {printf("%s \t- OPERATOR\n", yytext);} 
+{OPERATOR} {printf("%s \t- ARITHMETIC OPERATOR\n", yytext);} 
+{BITWISE} {printf("%s \t- BITWISE OPERATOR\n", yytext);}
+{COMPARISON} {printf("%s \t- COMPARISON OPERATOR\n", yytext);}
 
 {INVALID} {printf("%s \t- INVALID\n", yytext);}
 %%
