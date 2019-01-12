@@ -1,8 +1,15 @@
+%x comment
 %{
     
     #include<stdio.h>
     #include<string.h>
- 
+    int pstack[100];
+   int ptop=-1;
+   int cstack[100];
+   int ctop=-1;
+   
+   int nested_comment_stack=0;
+    int line=0;
     struct hashtable{
         char name[105];
         char type[105];
@@ -134,6 +141,7 @@ NOT \~
 
 PREPROCESSOR #include<.*>|#define.*
 STRING \".*\"|\'.*\'
+WRONG_STRING \"[^"]*|\'[^']* 
 SINGLELINE \/\/.*
 ARRAY .*\[[0-9]+\]
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
@@ -149,7 +157,8 @@ CONDITIONAL else|switch|if|case|default
 LOOP for|do|while
 
 %%
-[ \n\t] ;
+\n line++;
+[\t] ;
 ; {printf("%s \t- SEMICOLON DELIMITER\n", yytext);}
 , {printf("%s \t- COMMA DELIMITER\n", yytext);}
 \{ {printf("%s \t- OPENING BRACES\n", yytext);}
@@ -158,9 +167,32 @@ LOOP for|do|while
 \) {printf("%s \t- CLOSING BRACKETS\n", yytext);}
 \\ {printf("%s \t- FSLASH\n", yytext);}
 \. {printf("%s \t- DOT DELIMITER\n", yytext);}
+"/*"                    {BEGIN(comment); nested_comment_stack=1; yymore();}
+<comment><<EOF>>        {printf("\nMulti-line Comment: \""); yyless(yyleng-2); ECHO; printf("\", not terminted."); yyterminate();}
+<comment>"/*"           {nested_comment_stack++; yymore();}
+<comment>.              {yymore();}
+<comment>\n             {yymore();line++;}
+<comment>"*/"           {nested_comment_stack--;
+                        if(nested_comment_stack<0)
+                        {
+                          printf("\nComment: \"%s\", not balanced at line no: %d.", yytext, line);
+                          yyterminate();
+                        }
+                        else if(nested_comment_stack==0)
+                        {
+                          /*printf("\nMulti-line comment : \"%s\" at line number: %d.", yytext, line_num);*/
+                          BEGIN(INITIAL);
+                        }
+                        else
+                          yymore();
+                        }
+
+"*/"                    {printf("\n Uninitialised comment at line number: %d.", line); yyterminate();}
+
+"//".*                  {/*printf("\nSingle-line comment : \"%s\" at line number: %d.", yytext, line_num);*/}
+
 {PREPROCESSOR} {printf("%s \t- PREPROCESSOR\n", yytext); insert(yytext, "PREPROCESSOR");}
 {STRING} {printf("%s \t- STRING CONSTANT\n", yytext); insert2(yytext,"STRING CONSTANT");}
-{SINGLELINE} {printf("%s \t- SINGLE LINE COMMENT\n", yytext);}
 {ARRAY} {printf("%s \t- ARRAY DECLARATION\n", yytext);}
 
 {MULTILINE} {printf("%s \t- MULTI LINE COMMENT\n", yytext);}
@@ -176,8 +208,8 @@ LOOP for|do|while
 {OPERATOR} {printf("%s \t- ARITHMETIC OPERATOR\n", yytext);} 
 {BITWISE} {printf("%s \t- BITWISE OPERATOR\n", yytext);}
 {COMPARISON} {printf("%s \t- COMPARISON OPERATOR\n", yytext);}
+{WRONG_STRING} {printf("%s \t- WRONG STRING CONSTANT\n", yytext);}
 
-{INVALID} {printf("%s \t- INVALID\n", yytext);}
 %%
 
 int main(){
