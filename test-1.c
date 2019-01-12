@@ -1,6 +1,6 @@
 #include<stdio.h>//Header Files
 #define hundred 100
-int main(){
+int mainq(int a){
     int n,9i;//Integer Datatype
     scanf("%d",&n);//Scan Function
     char ch;//Character Datatype

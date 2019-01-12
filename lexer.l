@@ -147,7 +147,8 @@ WRONG_STRING \"[^"\n]*|\'[^'\n]*
 SINGLELINE \/\/.*
 ARRAY .*\[[0-9]+\]
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
-KEYWORD auto|char|const|default|double|enum|extern|float|int|long|register|return|short|signed|sizeof|static|struct|typedef|union|unsigned|void|volatile|main 
+KEYWORD auto|const|default|enum|extern|register|return|sizeof|static|struct|typedef|union|volatile|main 
+DATATYPE char|double|float|int|long|short|signed|unsigned|void
 IDENTIFIER [a-z|A-Z]([a-z|A-Z]|[0-9])*
 NUMBER_CONSTANT [1-9][0-9]*|0 
 OPERATOR {INCREMENT}|{DECREMENT}|{PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
@@ -197,8 +198,9 @@ LOOP for|do|while
 {ARRAY} {printf("%s \t- ARRAY DECLARATION\n", yytext);}
 
 {MULTILINE} {printf("%s \t- MULTI LINE COMMENT\n", yytext);}
-
+{DATATYPE}[ ]+{IDENTIFIER}[ ]+\({KEYWORD}[ ]+{IDENTIFIER}\) {printf("%s \t- FUNCTION\n", yytext);}
 {KEYWORD} {printf("%s \t- KEYWORD\n", yytext); insert(yytext, "KEYWORD");}
+{DATATYPE} {printf("%s \t- DATATYPE\n", yytext); insert(yytext, "DATATYPE");}
 {JUMP} {printf("%s \t- JUMP KEYWORD\n", yytext); insert(yytext, "JUMP");}
 {CONDITIONAL} {printf("%s \t- CONDITIONAL KEYWORD\n", yytext); insert(yytext, "CONDITIONAL");}
 {LOOP} {printf("%s \t- LOOP KEYWORD\n", yytext); insert(yytext, "LOOP");}
