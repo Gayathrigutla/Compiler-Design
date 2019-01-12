@@ -1,0 +1,4 @@
+- Identification of user-defined functions with one argument with return types​ ​ int, char, void​ .
+- Appropriate error messages for comments and strings that don't end until the end of the file.
+- return appropriate error messages for single and multiline comments.
+- report
