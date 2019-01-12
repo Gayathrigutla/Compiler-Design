@@ -130,6 +130,8 @@ EQ =
 LES <
 GRE >
 PLUS \+
+INCREMENT \+\+
+DECREMENT \-\-
 MINUS \-
 MULT \*
 DIV \/
@@ -141,14 +143,14 @@ NOT \~
 
 PREPROCESSOR #include<.*>|#define.*
 STRING \".*\"|\'.*\'
-WRONG_STRING \"[^"]*|\'[^']* 
+WRONG_STRING \"[^"\n]*|\'[^'\n]* 
 SINGLELINE \/\/.*
 ARRAY .*\[[0-9]+\]
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
 KEYWORD auto|char|const|default|double|enum|extern|float|int|long|register|return|short|signed|sizeof|static|struct|typedef|union|unsigned|void|volatile|main 
 IDENTIFIER [a-z|A-Z]([a-z|A-Z]|[0-9])*
 NUMBER_CONSTANT [1-9][0-9]*|0 
-OPERATOR {PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
+OPERATOR {INCREMENT}|{DECREMENT}|{PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
 COMPARISON {LEQ}|{GEQ}|{LES}|{GRE}
 BITWISE {XOR}|{REM}|{AND}|{OR}|{NOT}
 INVALID (.?)
@@ -168,28 +170,27 @@ LOOP for|do|while
 \\ {printf("%s \t- FSLASH\n", yytext);}
 \. {printf("%s \t- DOT DELIMITER\n", yytext);}
 "/*"                    {BEGIN(comment); nested_comment_stack=1; yymore();}
-<comment><<EOF>>        {printf("\nMulti-line Comment: \""); yyless(yyleng-2); ECHO; printf("\", not terminted."); yyterminate();}
+<comment><<EOF>>        {printf("\nMULTILINE COMMENT: \""); yyless(yyleng-2); ECHO; printf("\", NOT TERMINATED AT LINE NUMBER: %d",line); yyterminate();}
 <comment>"/*"           {nested_comment_stack++; yymore();}
 <comment>.              {yymore();}
 <comment>\n             {yymore();line++;}
 <comment>"*/"           {nested_comment_stack--;
                         if(nested_comment_stack<0)
                         {
-                          printf("\nComment: \"%s\", not balanced at line no: %d.", yytext, line);
+                          printf("\n \"%s\"\t- COMMENT NOT BALANCED AT LINE NUMBER: %d.", yytext, line);
                           yyterminate();
                         }
                         else if(nested_comment_stack==0)
                         {
-                          /*printf("\nMulti-line comment : \"%s\" at line number: %d.", yytext, line_num);*/
                           BEGIN(INITIAL);
                         }
                         else
                           yymore();
                         }
 
-"*/"                    {printf("\n Uninitialised comment at line number: %d.", line); yyterminate();}
+"*/"                    {printf("%s \t- UNINITIALISED COMMENT AT LINE NUMBER: %d\n", yytext,line); yyterminate();}
 
-"//".*                  {/*printf("\nSingle-line comment : \"%s\" at line number: %d.", yytext, line_num);*/}
+"//".*                  {printf("%s \t- SINGLE LINE COMMENT\n", yytext);}
 
 {PREPROCESSOR} {printf("%s \t- PREPROCESSOR\n", yytext); insert(yytext, "PREPROCESSOR");}
 {STRING} {printf("%s \t- STRING CONSTANT\n", yytext); insert2(yytext,"STRING CONSTANT");}
@@ -208,7 +209,7 @@ LOOP for|do|while
 {OPERATOR} {printf("%s \t- ARITHMETIC OPERATOR\n", yytext);} 
 {BITWISE} {printf("%s \t- BITWISE OPERATOR\n", yytext);}
 {COMPARISON} {printf("%s \t- COMPARISON OPERATOR\n", yytext);}
-{WRONG_STRING} {printf("%s \t- WRONG STRING CONSTANT\n", yytext);}
+{WRONG_STRING} {printf("%s \t\t- WRONG STRING CONSTANT AT LINE NUMBER: %d\n", yytext,line);}
 
 %%
 

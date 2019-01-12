@@ -4,7 +4,7 @@ int main(){
     int n,i;//Integer Datatype
     scanf("%d",&n);//Scan Function
     char ch;//Character Datatype
-    scanf("%d",&ch);
+    scanf("%d,&ch);
     int arr[10];
     arr[1]=20;
     for (i=0;i<n;i++){
@@ -19,7 +19,6 @@ int main(){
         else printf("Okay!\n");
     }
     /*
-    This File Contains Test cases about Datatypes,Keyword,Identifier,Nested For and while loop,
-    Conditional Statement,Single line Comment,MultiLine Comment etc.*/
+    This File Contains Test cases/*
     
 }
