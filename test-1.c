@@ -1,7 +1,8 @@
 #include<stdio.h>//Header Files
 #define hundred 100
 int mainq(int a){
-    int n,9i;//Integer Datatype
+    int n=10,9i;//Integer Datatype
+    n=1xabc;
     scanf("%d",&n);//Scan Function
     char ch;//Character Datatype
     scanf("%d",&ch);
@@ -20,6 +21,6 @@ int mainq(int a){
     }
     /*
     This File Contains Test cases about Datatypes,Keyword,Identifier,Nested For and while loop,
-    Conditional Statement,Single line Comment,MultiLine Comment etc.*/
+    Conditional Statement,Single line Comment,MultiLine Comment etc.
     
 }

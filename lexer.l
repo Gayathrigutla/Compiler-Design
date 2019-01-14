@@ -142,7 +142,6 @@ PREPROCESSOR #include<.*>|#define.*
 STRING \".*\"|\'.*\'
 WRONG_STRING \"[^"\n]*|\'[^'\n]* 
 SINGLELINE \/\/.*
-ARRAY .*\[[0-9]+\]
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
 KEYWORD auto|const|default|enum|extern|register|return|sizeof|static|struct|typedef|union|volatile|main 
 DATATYPE char|double|float|int|long|short|signed|unsigned|void
@@ -151,51 +150,61 @@ NUMBER_CONSTANT [1-9][0-9]*|0
 OPERATOR {INCREMENT}|{DECREMENT}|{PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
 COMPARISON {LEQ}|{GEQ}|{LES}|{GRE}
 BITWISE {XOR}|{REM}|{AND}|{OR}|{NOT}
-INVALID (.?)
+INVALID [^\n\t ]
+WRONG_ID ([0-9]|!|@|#|$|%)+([a-zA-Z0-9])+
 JUMP break|continue|goto
 CONDITIONAL else|switch|if|case|default
 LOOP for|do|while
 
 %%
 \n line++;
-[\t] ;
-; {printf("%s \t- SEMICOLON DELIMITER\n", yytext);}
-, {printf("%s \t- COMMA DELIMITER\n", yytext);}
-\{ {printf("%s \t- OPENING BRACES\n", yytext);
+[\t ] ;
+; {printf("%s \t---- SEMICOLON DELIMITER\n", yytext);}
+, {printf("%s \t---- COMMA DELIMITER\n", yytext);}
+\{ {printf("%s \t---- OPENING BRACES\n", yytext);
 	if(btop==-1){
 		bstack[0]='{'; btop=1;}
 	else {bstack[btop]='{';
 	btop++;}
 	}
-\} {printf("%s \t- CLOSING BRACES\n", yytext);
-	printf("%c\n",bstack[btop]);
+\} {printf("%s \t---- CLOSING BRACES\n", yytext);
 	if(bstack[btop-1]!='{')
-		printf("Unbalanced paranthesis on line no. %d\n",line);
+		printf("ERROR: UNBALANCED PARENTHESIS AT LINE NUMBER: %d\n",line);
 	btop--;
 	}
-\( {printf("%s \t- OPENING BRACKETS\n", yytext);
+\( {printf("%s \t---- OPENING BRACKETS\n", yytext);
 	if(btop==-1){
 		bstack[0]='('; btop=1;}
 	else {bstack[btop]='(';
 	btop++;}
 	}
-\) {printf("%s \t- CLOSING BRACKETS\n", yytext);
-	printf("%c\n",bstack[btop]);
+\) {printf("%s \t---- CLOSING BRACKETS\n", yytext);
 	if(bstack[btop-1]!='(')
-		printf("Unbalanced paranthesis on line no. %d\n",line);
+		printf("ERROR: UNBALANCED PARENTHESIS AT LINE NUMBER: %d\n",line);
+	btop--;
+	}
+\[ {printf("%s \t---- OPENING SQUARE BRACKETS\n", yytext);
+	if(btop==-1){
+		bstack[0]='['; btop=1;}
+	else {bstack[btop]='[';
+	btop++;}
+	}
+\] {printf("%s \t---- CLOSING SQUARE BRACKETS\n", yytext);
+	if(bstack[btop-1]!='[')
+		printf("ERROR: UNBALANCED PARENTHESIS AT LINE NUMBER: %d\n",line);
 	btop--;
 	}
 \\ {printf("%s \t- FSLASH\n", yytext);}
 \. {printf("%s \t- DOT DELIMITER\n", yytext);}
 "/*"                    {BEGIN(comment); nested_comment_stack=1; yymore();}
-<comment><<EOF>>        {printf("\nMULTILINE COMMENT: \""); yyless(yyleng-2); ECHO; printf("\", NOT TERMINATED AT LINE NUMBER: %d",line); yyterminate();}
+<comment><<EOF>>        {printf("\nERROR: MULTILINE COMMENT: \""); yyless(yyleng-2); ECHO; printf("\", NOT TERMINATED AT LINE NUMBER: %d",line); yyterminate();}
 <comment>"/*"           {nested_comment_stack++; yymore();}
 <comment>.              {yymore();}
 <comment>\n             {yymore();line++;}
 <comment>"*/"           {nested_comment_stack--;
                         if(nested_comment_stack<0)
                         {
-                          printf("\n \"%s\"\t- COMMENT NOT BALANCED AT LINE NUMBER: %d.", yytext, line);
+                          printf("\n \"%s\"\t---- ERROR: UNBALANCED COMMENT AT LINE NUMBER: %d.", yytext, line);
                           yyterminate();
                         }
                         else if(nested_comment_stack==0)
@@ -206,29 +215,28 @@ LOOP for|do|while
                           yymore();
                         }
 
-"*/"                    {printf("%s \t- UNINITIALISED COMMENT AT LINE NUMBER: %d\n", yytext,line); yyterminate();}
+"*/"                    {printf("%s \t---- ERROR: UNINITIALISED COMMENT AT LINE NUMBER: %d\n", yytext,line); yyterminate();}
 
-"//".*                  {printf("%s \t- SINGLE LINE COMMENT\n", yytext);}
+"//".*                  {printf("%s \t---- SINGLE LINE COMMENT\n", yytext);}
 
-{PREPROCESSOR} {printf("%s \t- PREPROCESSOR\n", yytext); insert(yytext, "PREPROCESSOR");}
-{STRING} {printf("%s \t- STRING CONSTANT\n", yytext); insert2(yytext,"STRING CONSTANT");}
-{ARRAY} {printf("%s \t- ARRAY DECLARATION\n", yytext);}
-
-{MULTILINE} {printf("%s \t- MULTI LINE COMMENT\n", yytext);}
+{PREPROCESSOR} {printf("%s \t---- PREPROCESSOR\n", yytext); insert(yytext, "PREPROCESSOR");}
+{STRING} {printf("%s \t---- STRING \n", yytext); insert2(yytext,"STRING CONSTANT");}
+{MULTILINE} {printf("%s \t---- MULTI LINE COMMENT\n", yytext);}
 {DATATYPE}[ ]+{IDENTIFIER}[ ]+\({KEYWORD}[ ]+{IDENTIFIER}\) {printf("%s \t- FUNCTION\n", yytext);}
-{KEYWORD} {printf("%s \t- KEYWORD\n", yytext); insert(yytext, "KEYWORD");}
-{DATATYPE} {printf("%s \t- DATATYPE\n", yytext); insert(yytext, "DATATYPE");}
-{JUMP} {printf("%s \t- JUMP KEYWORD\n", yytext); insert(yytext, "JUMP");}
-{CONDITIONAL} {printf("%s \t- CONDITIONAL KEYWORD\n", yytext); insert(yytext, "CONDITIONAL");}
-{LOOP} {printf("%s \t- LOOP KEYWORD\n", yytext); insert(yytext, "LOOP");}
-{IDENTIFIER} {printf("%s \t- IDENTIFIER\n", yytext); insert(yytext, "IDENTIFIER");}
+{KEYWORD} {printf("%s \t---- KEYWORD\n", yytext); insert(yytext, "KEYWORD");}
+{DATATYPE} {printf("%s \t---- DATATYPE\n", yytext); insert(yytext, "DATATYPE");}
+{JUMP} {printf("%s \t---- JUMP KEYWORD\n", yytext); insert(yytext, "JUMP");}
+{CONDITIONAL} {printf("%s \t---- CONDITIONAL KEYWORD\n", yytext); insert(yytext, "CONDITIONAL");}
+{LOOP} {printf("%s \t---- LOOP KEYWORD\n", yytext); insert(yytext, "LOOP");}
+{IDENTIFIER} {printf("%s \t---- IDENTIFIER\n", yytext); insert(yytext, "IDENTIFIER");}
+{WRONG_ID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext); insert(yytext, "WRONG_ID");}
+{NUMBER_CONSTANT} {printf("%s \t---- NUMBER CONSTANT\n", yytext); insert2(yytext, "NUMBER CONSTANT");}
 
-{NUMBER_CONSTANT} {printf("%s \t- NUMBER CONSTANT\n", yytext); insert2(yytext, "NUMBER CONSTANT");}
-
-{OPERATOR} {printf("%s \t- ARITHMETIC OPERATOR\n", yytext);} 
-{BITWISE} {printf("%s \t- BITWISE OPERATOR\n", yytext);}
-{COMPARISON} {printf("%s \t- COMPARISON OPERATOR\n", yytext);}
-{WRONG_STRING} {printf("%s \t\t- WRONG STRING CONSTANT AT LINE NUMBER: %d\n", yytext,line);}
+{OPERATOR} {printf("%s \t---- ARITHMETIC OPERATOR\n", yytext);} 
+{BITWISE} {printf("%s \t---- BITWISE OPERATOR\n", yytext);}
+{COMPARISON} {printf("%s \t---- COMPARISON OPERATOR\n", yytext);}
+{WRONG_STRING} {printf("%s \t---- ERROR: UNTERMINATED STRING AT LINE NUMBER: %d\n", yytext,line);}
+{INVALID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext); insert(yytext, "INVALID");}
 
 %%
 
@@ -240,11 +248,11 @@ int main(){
     }
     yyin=fopen("test-1.c","r");
     yylex();
-    printf("\n\nSYMBOL TABLE\n\n");
+    printf("\n\n---------------------\nSYMBOL TABLE\n---------------------\n\n");
     
     print();
 
-    printf("\n\nCONSTANT TABLE\n\n");
+    printf("\n\n---------------------\nCONSTANT TABLE\n---------------------\n\n");
     print2();
 }
 
