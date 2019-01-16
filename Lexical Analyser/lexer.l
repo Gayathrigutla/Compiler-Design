@@ -4,9 +4,10 @@
     #include<stdio.h>
     #include<string.h>
     char bstack[100];
-   int btop=-1;
-   int nested_comment_stack=0;
+    int btop=-1;
+    int nested_comment_stack=0;
     int line=0;
+
     struct hashtable{
         char name[105];
         char type[105];
@@ -33,7 +34,7 @@
         return val;
     }
 
-    void insert(char *arg1,char *arg2){
+    void insert(char *arg1, char *arg2){
         
         int l1=strlen(arg1);
         int l2=strlen(arg2);
@@ -143,18 +144,15 @@ STRING \".*\"|\'.*\'
 WRONG_STRING \"[^"\n]*|\'[^'\n]* 
 SINGLELINE \/\/.*
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
-KEYWORD auto|const|default|enum|extern|register|return|sizeof|static|struct|typedef|union|volatile|main 
-DATATYPE char|double|float|int|long|short|signed|unsigned|void
+KEYWORD auto|const|default|enum|extern|register|return|sizeof|static|struct|typedef|union|volatile|break|continue|goto|else|switch|if|case|default|for|do|while|char|double|float|int|long|short|signed|unsigned|void
 IDENTIFIER [a-z|A-Z]([a-z|A-Z]|[0-9])*
 NUMBER_CONSTANT [1-9][0-9]*|0 
 OPERATOR {INCREMENT}|{DECREMENT}|{PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
 COMPARISON {LEQ}|{GEQ}|{LES}|{GRE}
 BITWISE {XOR}|{REM}|{AND}|{OR}|{NOT}
 INVALID [^\n\t ]
-WRONG_ID ([0-9]|!|@|#|$|%)+([a-zA-Z0-9])+
-JUMP break|continue|goto
-CONDITIONAL else|switch|if|case|default
-LOOP for|do|while
+WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
+
 
 %%
 \n line++;
@@ -219,24 +217,18 @@ LOOP for|do|while
 
 "//".*                  {printf("%s \t---- SINGLE LINE COMMENT\n", yytext);}
 
-{PREPROCESSOR} {printf("%s \t---- PREPROCESSOR\n", yytext); insert(yytext, "PREPROCESSOR");}
+{PREPROCESSOR} {printf("%s \t---- PREPROCESSOR\n", yytext); }
 {STRING} {printf("%s \t---- STRING \n", yytext); insert2(yytext,"STRING CONSTANT");}
 {MULTILINE} {printf("%s \t---- MULTI LINE COMMENT\n", yytext);}
-{DATATYPE}[ ]+{IDENTIFIER}[ ]+\({KEYWORD}[ ]+{IDENTIFIER}\) {printf("%s \t- FUNCTION\n", yytext);}
 {KEYWORD} {printf("%s \t---- KEYWORD\n", yytext); insert(yytext, "KEYWORD");}
-{DATATYPE} {printf("%s \t---- DATATYPE\n", yytext); insert(yytext, "DATATYPE");}
-{JUMP} {printf("%s \t---- JUMP KEYWORD\n", yytext); insert(yytext, "JUMP");}
-{CONDITIONAL} {printf("%s \t---- CONDITIONAL KEYWORD\n", yytext); insert(yytext, "CONDITIONAL");}
-{LOOP} {printf("%s \t---- LOOP KEYWORD\n", yytext); insert(yytext, "LOOP");}
 {IDENTIFIER} {printf("%s \t---- IDENTIFIER\n", yytext); insert(yytext, "IDENTIFIER");}
-{WRONG_ID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext); insert(yytext, "WRONG_ID");}
+{WRONG_ID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext);}
 {NUMBER_CONSTANT} {printf("%s \t---- NUMBER CONSTANT\n", yytext); insert2(yytext, "NUMBER CONSTANT");}
-
 {OPERATOR} {printf("%s \t---- ARITHMETIC OPERATOR\n", yytext);} 
 {BITWISE} {printf("%s \t---- BITWISE OPERATOR\n", yytext);}
 {COMPARISON} {printf("%s \t---- COMPARISON OPERATOR\n", yytext);}
 {WRONG_STRING} {printf("%s \t---- ERROR: UNTERMINATED STRING AT LINE NUMBER: %d\n", yytext,line);}
-{INVALID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext); insert(yytext, "INVALID");}
+{INVALID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext); }
 
 %%
 
