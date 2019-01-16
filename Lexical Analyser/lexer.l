@@ -14,13 +14,6 @@
         int len;
     }table[1005];
 
-    struct consttable{
-        char name[105];
-        char type[105];
-        int len;
-    }ctable[1005];
-    
-
     int Hash(char *s){
         int mod=1001;
         int l=strlen(s),val=0,i;
@@ -34,20 +27,20 @@
         return val;
     }
 
-    void insert_symbol(char *arg1, char *arg2){
+    void insert_symbol(char *lexeme, char *token_name){
         
-        int l1=strlen(arg1);
-        int l2=strlen(arg2);
-        int v=Hash(arg1);
+        int l1=strlen(lexeme);
+        int l2=strlen(token_name);
+        int v=Hash(lexeme);
         if(table[v].len==0){
-            strcpy(table[v].name,arg1);
-            strcpy(table[v].type,arg2);
+            strcpy(table[v].name,lexeme);
+            strcpy(table[v].type,token_name);
             
-            table[v].len=strlen(arg1);
+            table[v].len=strlen(lexeme);
             return ;
         }
 
-        if(strcmp(table[v].name,arg1)==0)
+        if(strcmp(table[v].name,lexeme)==0)
         return ;
 
         int i,pos=0;
@@ -59,10 +52,9 @@
             }
         }
 
-        strcpy(table[pos].name,arg1);
-        strcpy(table[pos].type,arg2);
-        table[pos].len=strlen(arg1);
-
+        strcpy(table[pos].name,lexeme);
+        strcpy(table[pos].type,token_name);
+        table[pos].len=strlen(lexeme);
 
     }
 
@@ -97,7 +89,7 @@ OR \|
 XOR \^
 NOT \~
 
-PREPROCESSOR #include<.*>|#define.*
+PREPROCESSOR #(include<.*>|define.*|ifdef|endif|if|else|ifndef|undef|pragma)
 STRING \".*\"|\'.*\'
 WRONG_STRING \"[^"\n]*|\'[^'\n]* 
 SINGLELINE \/\/.*
@@ -117,35 +109,40 @@ WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
 [\t ] ;
 ; {printf("%s \t---- SEMICOLON DELIMITER\n", yytext);}
 , {printf("%s \t---- COMMA DELIMITER\n", yytext);}
-\{ {printf("%s \t---- OPENING BRACES\n", yytext);
+\{ {printf("%s \t---- PARENTHESIS\n", yytext);
 	if(btop==-1){
 		bstack[0]='{'; btop=1;}
 	else {bstack[btop]='{';
-	btop++;}
+	btop++;
+    }
 	}
-\} {printf("%s \t---- CLOSING BRACES\n", yytext);
+\} {printf("%s \t---- PARENTHESIS\n", yytext);
 	if(bstack[btop-1]!='{')
 		printf("ERROR: UNBALANCED PARENTHESIS AT LINE NUMBER: %d\n",line);
 	btop--;
 	}
-\( {printf("%s \t---- OPENING BRACKETS\n", yytext);
+\( {printf("%s \t---- PARENTHESIS\n", yytext);
 	if(btop==-1){
 		bstack[0]='('; btop=1;}
-	else {bstack[btop]='(';
-	btop++;}
+	else {
+        bstack[btop]='(';
+    	btop++;
+    }
 	}
-\) {printf("%s \t---- CLOSING BRACKETS\n", yytext);
+\) {printf("%s \t---- PARENTHESIS\n", yytext);
 	if(bstack[btop-1]!='(')
 		printf("ERROR: UNBALANCED PARENTHESIS AT LINE NUMBER: %d\n",line);
 	btop--;
 	}
-\[ {printf("%s \t---- OPENING SQUARE BRACKETS\n", yytext);
+\[ {printf("%s \t---- PARENTHESIS\n", yytext);
 	if(btop==-1){
 		bstack[0]='['; btop=1;}
-	else {bstack[btop]='[';
-	btop++;}
+	else {
+        bstack[btop]='[';
+    	btop++;
+    }
 	}
-\] {printf("%s \t---- CLOSING SQUARE BRACKETS\n", yytext);
+\] {printf("%s \t---- PARENTHESIS\n", yytext);
 	if(bstack[btop-1]!='[')
 		printf("ERROR: UNBALANCED PARENTHESIS AT LINE NUMBER: %d\n",line);
 	btop--;
@@ -175,7 +172,7 @@ WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
 
 "//".*                  {printf("%s \t---- SINGLE LINE COMMENT\n", yytext);}
 
-{PREPROCESSOR} {printf("%s \t---- PREPROCESSOR\n", yytext); }
+{PREPROCESSOR} printf("%s \t---- PREPROCESSOR\n", yytext);
 {STRING} {printf("%s \t---- STRING \n", yytext); insert_symbol(yytext,"STRING CONSTANT");}
 {MULTILINE} {printf("%s \t---- MULTI LINE COMMENT\n", yytext);}
 {KEYWORD} {printf("%s \t---- KEYWORD\n", yytext); insert_symbol(yytext, "KEYWORD");}
@@ -186,7 +183,7 @@ WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
 {BITWISE} {printf("%s \t---- BITWISE OPERATOR\n", yytext);}
 {COMPARISON} {printf("%s \t---- COMPARISON OPERATOR\n", yytext);}
 {WRONG_STRING} {printf("%s \t---- ERROR: UNTERMINATED STRING AT LINE NUMBER: %d\n", yytext,line);}
-{INVALID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext); }
+{INVALID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER AT LINE NUMBER: %d\n", yytext,line); }
 
 %%
 
