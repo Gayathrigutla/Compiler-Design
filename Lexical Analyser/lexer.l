@@ -1,27 +1,34 @@
+/*
+Namrata Ladda, 16CO121
+Mehnaz Yunus, 16CO124
+Sharanya Kamath, 16CO140
+
+Lexical Analyser
+*/
 %x comment
 %{
     
     #include<stdio.h>
     #include<string.h>
     char bstack[100];
-    int btop=-1;
-    int nested_comment_stack=0;
-    int line=0;
+    int btop = -1;
+    int nested_comment_stack = 0;
+    int line = 0;
 
     struct hashtable{
-        char name[105];
-        char type[105];
+        char name[100];
+        char type[100];
         int len;
-    }table[1005];
+    }table[1000];
 
     int Hash(char *s){
-        int mod=1001;
-        int l=strlen(s),val=0,i;
-        for (i=0;i<l;i++){
-            val=val*10+(s[i]-'A');
-            val=val%mod;
-            while(val<0){
-                val+=mod;
+        int mod = 1001;
+        int l = strlen(s), val = 0, i;
+        for(i = 0; i < l; i++){
+            val = val * 10 + (s[i]-'A');
+            val = val % mod;
+            while(val < 0){
+                val += mod;
             }
         }
         return val;
@@ -29,44 +36,42 @@
 
     void insert_symbol(char *lexeme, char *token_name){
         
-        int l1=strlen(lexeme);
-        int l2=strlen(token_name);
-        int v=Hash(lexeme);
-        if(table[v].len==0){
-            strcpy(table[v].name,lexeme);
-            strcpy(table[v].type,token_name);
+        int l1 = strlen(lexeme);
+        int l2 = strlen(token_name);
+        int v = Hash(lexeme);
+        if(table[v].len == 0){
+            strcpy(table[v].name, lexeme);
+            strcpy(table[v].type, token_name);
             
-            table[v].len=strlen(lexeme);
-            return ;
+            table[v].len = strlen(lexeme);
+            return;
         }
 
-        if(strcmp(table[v].name,lexeme)==0)
-        return ;
+        if(strcmp(table[v].name,lexeme) == 0)
+        return;
 
-        int i,pos=0;
+        int i, pos = 0;
 
-        for (i=0;i<1001;i++){
-            if(table[i].len==0){
-                pos=i;
+        for (i = 0; i < 1001; i++){
+            if(table[i].len == 0){
+                pos = i;
                 break;
             }
         }
 
-        strcpy(table[pos].name,lexeme);
-        strcpy(table[pos].type,token_name);
-        table[pos].len=strlen(lexeme);
+        strcpy(table[pos].name, lexeme);
+        strcpy(table[pos].type, token_name);
+        table[pos].len = strlen(lexeme);
 
     }
 
     void print(){
         int i;
-
-        for ( i=0;i<1001;i++){
-            if(table[i].len==0){
+        for(i = 0;i < 1001; i++){
+            if(table[i].len == 0){
                 continue;
             }
-
-            printf("%s \t %s\n",table[i].name,table[i].type);
+            printf("%15s \t %40s\n",table[i].name,table[i].type);
         }
     }
 
@@ -149,6 +154,7 @@ WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
 	}
 \\ {printf("%s \t- FSLASH\n", yytext);}
 \. {printf("%s \t- DOT DELIMITER\n", yytext);}
+
 "/*"                    {BEGIN(comment); nested_comment_stack=1; yymore();}
 <comment><<EOF>>        {printf("\nERROR: MULTILINE COMMENT: \""); yyless(yyleng-2); ECHO; printf("\", NOT TERMINATED AT LINE NUMBER: %d",line); yyterminate();}
 <comment>"/*"           {nested_comment_stack++; yymore();}
@@ -187,22 +193,22 @@ WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
 
 %%
 
-int main(){
-
-    int i;
-    for (i=0;i<1001;i++){
-        table[i].len=0;
-    }
-    yyin=fopen("test-1.c","r");
-    yylex();
-    printf("\n\n---------------------\nSYMBOL TABLE\n---------------------\n\n");
-    
-    print();
-
-    //printf("\n\n---------------------\nCONSTANT TABLE\n---------------------\n\n");
-    //print2();
-}
-
 int yywrap(){
     return 1;
 }
+
+int main(){
+
+    int i;
+    for (i = 0; i < 1001; i++){
+        table[i].len=0;
+    }
+    yyin = fopen("test-1.c","r");
+    yylex();
+    printf("\n\n----------------------------------------------------------------------------\n\t\t\t\tSYMBOL TABLE\n----------------------------------------------------------------------------\n");   
+	printf("\tLexeme \t\t\t\t\t\tToken\n"); 
+	printf("----------------------------------------------------------------------------\n");
+    print();
+}
+
+
