@@ -34,7 +34,7 @@
         return val;
     }
 
-    void insert(char *arg1, char *arg2){
+    void insert_symbol(char *arg1, char *arg2){
         
         int l1=strlen(arg1);
         int l2=strlen(arg2);
@@ -66,36 +66,6 @@
 
     }
 
-    void insert2(char *arg1,char *arg2){
-        
-        int l1=strlen(arg1);
-        int l2=strlen(arg2);
-        int v=Hash(arg1);
-        if(ctable[v].len==0){
-            strcpy(ctable[v].name,arg1);
-            strcpy(ctable[v].type,arg2);
-            
-            ctable[v].len=strlen(arg1);
-            return ;
-        }
-
-        if(strcmp(ctable[v].name,arg1)==0)
-        return ;
-
-        int i,pos=0;
-
-        for (i=0;i<1001;i++){
-            if(ctable[i].len==0){
-                pos=i;
-                break;
-            }
-        }
-
-        strcpy(ctable[pos].name,arg1);
-        strcpy(ctable[pos].type,arg2);
-        ctable[pos].len=strlen(arg1);
-    }
-
     void print(){
         int i;
 
@@ -105,18 +75,6 @@
             }
 
             printf("%s \t %s\n",table[i].name,table[i].type);
-        }
-    }
-
-    void print2(){
-        int i;
-
-        for ( i=0;i<1001;i++){
-            if(ctable[i].len==0){
-                continue;
-            }
-
-            printf("%s \t %s\n",ctable[i].name,ctable[i].type);
         }
     }
 
@@ -146,7 +104,7 @@ SINGLELINE \/\/.*
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
 KEYWORD auto|const|default|enum|extern|register|return|sizeof|static|struct|typedef|union|volatile|break|continue|goto|else|switch|if|case|default|for|do|while|char|double|float|int|long|short|signed|unsigned|void
 IDENTIFIER [a-z|A-Z]([a-z|A-Z]|[0-9])*
-NUMBER_CONSTANT [1-9][0-9]*|0 
+NUMBER_CONSTANT [1-9][0-9]*(\.[0-9]+)?|0(\.[0-9]+)? 
 OPERATOR {INCREMENT}|{DECREMENT}|{PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
 COMPARISON {LEQ}|{GEQ}|{LES}|{GRE}
 BITWISE {XOR}|{REM}|{AND}|{OR}|{NOT}
@@ -218,12 +176,12 @@ WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
 "//".*                  {printf("%s \t---- SINGLE LINE COMMENT\n", yytext);}
 
 {PREPROCESSOR} {printf("%s \t---- PREPROCESSOR\n", yytext); }
-{STRING} {printf("%s \t---- STRING \n", yytext); insert2(yytext,"STRING CONSTANT");}
+{STRING} {printf("%s \t---- STRING \n", yytext); insert_symbol(yytext,"STRING CONSTANT");}
 {MULTILINE} {printf("%s \t---- MULTI LINE COMMENT\n", yytext);}
-{KEYWORD} {printf("%s \t---- KEYWORD\n", yytext); insert(yytext, "KEYWORD");}
-{IDENTIFIER} {printf("%s \t---- IDENTIFIER\n", yytext); insert(yytext, "IDENTIFIER");}
+{KEYWORD} {printf("%s \t---- KEYWORD\n", yytext); insert_symbol(yytext, "KEYWORD");}
+{IDENTIFIER} {printf("%s \t---- IDENTIFIER\n", yytext); insert_symbol(yytext, "IDENTIFIER");}
 {WRONG_ID} {printf("%s \t---- ERROR: ILL-FORMED IDENTIFIER\n", yytext);}
-{NUMBER_CONSTANT} {printf("%s \t---- NUMBER CONSTANT\n", yytext); insert2(yytext, "NUMBER CONSTANT");}
+{NUMBER_CONSTANT} {printf("%s \t---- NUMBER CONSTANT\n", yytext); insert_symbol(yytext, "NUMBER CONSTANT");}
 {OPERATOR} {printf("%s \t---- ARITHMETIC OPERATOR\n", yytext);} 
 {BITWISE} {printf("%s \t---- BITWISE OPERATOR\n", yytext);}
 {COMPARISON} {printf("%s \t---- COMPARISON OPERATOR\n", yytext);}
@@ -244,8 +202,8 @@ int main(){
     
     print();
 
-    printf("\n\n---------------------\nCONSTANT TABLE\n---------------------\n\n");
-    print2();
+    //printf("\n\n---------------------\nCONSTANT TABLE\n---------------------\n\n");
+    //print2();
 }
 
 int yywrap(){
