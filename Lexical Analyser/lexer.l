@@ -193,7 +193,7 @@ int main(){
     for (i=0;i<1001;i++){
         table[i].len=0;
     }
-    yyin=fopen("tester-3.c","r");
+    yyin=fopen("tester-4.c","r");
     yylex();
     printf("\n\n---------------------\nSYMBOL TABLE\n---------------------\n\n");
     
