@@ -100,13 +100,13 @@ WRONG_STRING \"[^"\n]*|\'[^'\n]*
 SINGLELINE \/\/.*
 MULTILINE "/*"([^*]|\*+[^*/])*\*+"/"
 KEYWORD auto|const|default|enum|extern|register|return|sizeof|static|struct|typedef|union|volatile|break|continue|goto|else|switch|if|case|default|for|do|while|char|double|float|int|long|short|signed|unsigned|void
-IDENTIFIER [a-z|A-Z]([a-z|A-Z]|[0-9])*
+IDENTIFIER [a-zA-Z_]([a-zA-Z0-9_])*
 NUMBER_CONSTANT [1-9][0-9]*(\.[0-9]+)?|0(\.[0-9]+)? 
 OPERATOR {INCREMENT}|{DECREMENT}|{PLUS}|{MINUS}|{MULT}|{DIV}|{EQ}
 COMPARISON {LEQ}|{GEQ}|{LES}|{GRE}
 BITWISE {XOR}|{REM}|{AND}|{OR}|{NOT}
 INVALID [^\n\t ]
-WRONG_ID ([0-9]+[a-zA-Z][a-zA-Z0-9]*)
+WRONG_ID ([0-9\*\-\+\%\/]+[a-zA-Z][a-zA-Z0-9\*\-\+\%\/]*)
 
 
 %%
