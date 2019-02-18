@@ -41,15 +41,18 @@ int yylineno;
 "|="			{  return OR_ASSIGN; }
 "char"			{  yylval = yytext; return CHAR; }
 "short"			{  yylval = yytext; return SHORT; }
+"short int"		{  yylval = yytext; return SHORT_INT; }
 "int"			{  yylval = yytext; return INT; }
 "float"			{  yylval = yytext; return FLOAT; }
 "long"			{  yylval = yytext; return LONG; }
-"signed"		{  yylval = yytext; return SIGNED; }
-"unsigned"		{  yylval = yytext; return UNSIGNED; }
+"long int"		{  yylval = yytext; return LONG_INT; }
+"signed int"		{  yylval = yytext; return SIGNED_INT; }
+"unsigned int"		{  yylval = yytext; return UNSIGNED_INT; }
 "void"			{  yylval = yytext; return VOID; }
 "if"			{  return IF; }
 "else"			{  return ELSE; }
 "while"			{  return WHILE; }
+"for"			{  return FOR; } 
 "break"			{  return BREAK; }
 "return"		{  return RETURN; }
 ";"				{  return(';'); }

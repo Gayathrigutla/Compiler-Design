@@ -9,9 +9,9 @@
 %token INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
-%token XOR_ASSIGN OR_ASSIGN TYPE_NAME DEF
-%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOID
-%token IF ELSE WHILE CONTINUE BREAK RETURN
+%token XOR_ASSIGN OR_ASSIGN
+%token CHAR SHORT SHORT_INT INT LONG LONG_INT SIGNED_INT UNSIGNED_INT FLOAT DOUBLE CONST VOID
+%token IF ELSE WHILE FOR CONTINUE BREAK RETURN
 %start start_state
 %nonassoc UNARY
 %glr-parser
@@ -35,16 +35,15 @@ global_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator compound_statement
-	| declarator compound_statement
+	: type_specifier direct_declarator compound_statement
 	;
 
 fundamental_exp
 	: IDENTIFIER
-	| STRING_CONSTANT		{ constantInsert($1, "string"); }
-	| CHAR_CONSTANT     { constantInsert($1, "char"); }
-	| FLOAT_CONSTANT	  { constantInsert($1, "float"); }
-	| INT_CONSTANT			{ constantInsert($1, "int"); }
+	| STRING_CONSTANT	{ constantInsert($1, "string"); }
+	| CHAR_CONSTANT     	{ constantInsert($1, "char"); }
+	| FLOAT_CONSTANT	{ constantInsert($1, "float"); }
+	| INT_CONSTANT		{ constantInsert($1, "int"); }
 	| '(' expression ')'
 	;
 
@@ -81,7 +80,7 @@ unary_operator
 
 typecast_exp
 	: unary_expression
-	| '(' type_name ')' typecast_exp
+	| '(' type_specifier ')' typecast_exp
 	;
 
 multdivmod_exp
@@ -171,18 +170,9 @@ expression
 	| expression ',' assignment_expression
 	;
 
-constant_expression
-	: conditional_expression
-	;
-
 variable_declaration
-	: declaration_specifiers init_declarator_list ';'
+	: type_specifier init_declarator_list ';'
 	| error
-	;
-
-declaration_specifiers
-	: type_specifier	{ strcpy(type, $1); }
-	| type_specifier declaration_specifiers	{ strcpy(temp, $1); strcat(temp, " "); strcat(temp, type); strcpy(type, temp); }
 	;
 
 init_declarator_list
@@ -191,34 +181,28 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator
-	| declarator '=' init
+	: direct_declarator
+	| direct_declarator '=' init
 	;
 
 type_specifier
-	: VOID			{ $$ = "void"; }
-	| CHAR			{ $$ = "char"; }
-	| SHORT			{ $$ = "short"; }
-	| INT				{ $$ = "int"; }
-	| FLOAT			{$$ = "float";}
-	| LONG			{ $$ = "long"; }
-	| SIGNED		{ $$ = "signed"; }
-	| UNSIGNED	{ $$ = "unsigned"; }
+	: VOID			{ $$ = "void"; } 	{ strcpy(type, $1); }
+	| CHAR			{ $$ = "char"; } 	{ strcpy(type, $1); }
+	| SHORT			{ $$ = "short"; } 	{ strcpy(type, $1); }
+	| SHORT_INT		{ $$ = "short int"; } 	{ strcpy(type, $1); }
+	| INT			{ $$ = "int"; } 	{ strcpy(type, $1); }
+	| FLOAT			{ $$ = "float";} 	{ strcpy(type, $1); }
+	| LONG			{ $$ = "long"; } 	{ strcpy(type, $1); }
+	| LONG_INT		{ $$ = "long int"; } 	{ strcpy(type, $1); }
+	| SIGNED_INT		{ $$ = "signed int"; } 	{ strcpy(type, $1); }
+	| UNSIGNED_INT		{ $$ = "unsigned int"; }{ strcpy(type, $1); }
 	;
 
-type_specifier_list
-	: type_specifier type_specifier_list
-	| type_specifier
-	;
-
-declarator
-	: direct_declarator
-	;
 
 direct_declarator
-	: IDENTIFIER								{ symbolInsert($1, type); }
-	| '(' declarator ')'
-	| direct_declarator '[' constant_expression ']'
+	: IDENTIFIER					{ symbolInsert($1, type); }
+	| '(' direct_declarator ')'
+	| direct_declarator '[' conditional_expression ']'
 	| direct_declarator '[' ']'
 	| direct_declarator '(' parameter_type_list ')'
 	| direct_declarator '(' identifier_list ')'
@@ -236,35 +220,13 @@ parameter_list
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator
-	| declaration_specifiers abstract_declarator
-	| declaration_specifiers
+	: type_specifier direct_declarator  
+	| type_specifier 
 	;
 
 identifier_list
 	: IDENTIFIER
 	| identifier_list ',' IDENTIFIER
-	;
-
-type_name
-	: type_specifier_list
-	| type_specifier_list abstract_declarator
-	;
-
-abstract_declarator
-	: direct_abstract_declarator
-	;
-
-direct_abstract_declarator
-	: '(' abstract_declarator ')'
-	| '[' ']'
-	| '[' constant_expression ']'
-	| direct_abstract_declarator '[' ']'
-	| direct_abstract_declarator '[' constant_expression ']'
-	| '(' ')'
-	| '(' parameter_type_list ')'
-	| direct_abstract_declarator '(' ')'
-	| direct_abstract_declarator '(' parameter_type_list ')'
 	;
 
 init
@@ -318,6 +280,8 @@ selection_statement
 
 iteration_statement
 	: WHILE '(' expression ')' statement
+	| FOR '(' expression_statement expression_statement expression ')'
+	| FOR '(' expression_statement expression_statement ')'
 	;
 
 jump_statement
