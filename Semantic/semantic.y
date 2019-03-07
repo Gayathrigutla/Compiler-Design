@@ -51,33 +51,36 @@ statement : compound
           | main
           ;
   
-declaration : type identifier '=' INT_CONST ';'
+declaration : type ID '=' constant ';'
             {
-               insert($1,$2,stack);
+		if(strcmp($1,$4))
+			printf("Not matching type\n");
+               else insert($1,$2,stack);
             }
             ;
-	             
+	
+constant : INT_CONST	{$$="int";}
+	| STR_CONST	{$$="char";}
+	;             
 compound : '{''}'
         | '{' statement_list '}'
          ;
          
 
          
-print : PRINT '(' STR_CONST ',' identifier ')' ';'
+print : PRINT '(' STR_CONST ',' ID ')' ';'
         {
             int x=returnscope($5);
             if(x==-1 || x!=stack)
                 printf("Undeclared use of %s at line %d\n",$5,yylineno);
         }
       ;    
-identifier
-	: ID 
-	; 
 	
 main : type MAIN '(' ')'       {insert($1,$2,stack);}; 
 
 type
 	: INT {$$="int";}
+	| CHAR {$$="char";}
 	;	
 %%
 
