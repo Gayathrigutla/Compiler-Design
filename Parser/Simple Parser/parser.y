@@ -63,8 +63,8 @@ expression
 	;
 	
 assignment_expression
-	: relational_expression
-	| assignment_expression assignment_operator relational_expression
+	: all_expression
+	| assignment_expression assignment_operator all_expression
 	;
 	
 assignment_operator
@@ -72,25 +72,18 @@ assignment_operator
 	| ADD_ASSIGN
 	;
 
-relational_expression
-	: addsub_expression
-	| relational_expression '>' addsub_expression
-	| relational_expression '<' addsub_expression
-	;
-	
-addsub_expression
-	: muldivmod_expression
-	| addsub_expression '+' muldivmod_expression
-	| addsub_expression '-' muldivmod_expression
-	;
-	
-muldivmod_expression
+all_expression
 	: fundamental_expression
-	| muldivmod_expression '*' fundamental_expression
-	| muldivmod_expression '/' fundamental_expression
-	| muldivmod_expression '%' fundamental_expression
+	| all_expression '>' all_expression
+	| all_expression '<' all_expression
+	| all_expression '+' all_expression
+	| all_expression '-' all_expression
+	| all_expression '/' all_expression
+	| all_expression '*' all_expression
+	| all_expression '%' all_expression
 	;
 	
+
 fundamental_expression
 	: IDENTIFIER { symbolInsert($1, type); }
 	| STRING_CONST { constantInsert($1, "string"); }
