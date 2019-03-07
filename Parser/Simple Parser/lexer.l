@@ -17,28 +17,28 @@ int yylineno;
 [0-9]+ { yylval = yytext; return INT_CONST; }
 [0-9]+\.[0-9]+ { yylval = yytext; return FLOAT_CONST; }
 
-"{" { yylval = yytext; return ('{'); }
-"}" { yylval = yytext; return ('}'); }
-"(" { yylval = yytext; return ('('); }
-")" { yylval = yytext; return (')'); }
-"=" { yylval = yytext; return ('='); }
-";" { yylval = yytext; return (';'); }
-"+" { yylval = yytext; return ('+'); }
-"-" { yylval = yytext; return ('-'); }
-"*" { yylval = yytext; return ('*'); }
-"/" { yylval = yytext; return ('/'); }
-"%" { yylval = yytext; return ('%'); }
-"<" { yylval = yytext; return ('<'); }
-">" { yylval = yytext; return ('>'); }
-"," { yylval = yytext; return (','); }
-"+=" { yylval = yytext; return ADD_ASSIGN; }
+"{" { yylval = strdup(yytext); return ('{'); }
+"}" { yylval = strdup(yytext); return ('}'); }
+"(" { yylval = strdup(yytext); return ('('); }
+")" { yylval = strdup(yytext); return (')'); }
+"=" { yylval = strdup(yytext); return ('='); }
+";" { yylval = strdup(yytext); return (';'); }
+"+" { yylval = strdup(yytext); return ('+'); }
+"-" { yylval = strdup(yytext); return ('-'); }
+"*" { yylval = strdup(yytext); return ('*'); }
+"/" { yylval = strdup(yytext); return ('/'); }
+"%" { yylval = strdup(yytext); return ('%'); }
+"<" { yylval = strdup(yytext); return ('<'); }
+">" { yylval = strdup(yytext); return ('>'); }
+"," { yylval = strdup(yytext); return (','); }
+"+=" { yylval = strdup(yytext); return ADD_ASSIGN; }
 
-"int" { yylval = yytext; return INT; }
-"for" { yylval = yytext; return FOR; }
-"return" { yylval = yytext; return RETURN; }
-"printf" { yylval = yytext; return PRINTF; }
+"int" { yylval = strdup(yytext); return INT; }
+"for" { yylval = strdup(yytext); return FOR; }
+"return" { yylval = strdup(yytext); return RETURN; }
+"printf" { yylval = strdup(yytext); return PRINTF; }
 
-[A-Za-z_]([A-Za-z0-9_])* {yylval = yytext; return IDENTIFIER; }
+[A-Za-z_]([A-Za-z0-9_])* {yylval = strdup(yytext); return IDENTIFIER; }
 
 [ \n\t] { }
 . { }
