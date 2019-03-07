@@ -1,6 +1,7 @@
 %left '='
 %token ID MAIN
-%token INT INT_CONST STR_CONST PRINT CHAR
+%token INT INT_CONST STR_CONST PRINT CHAR 
+%token RETURN VOID
 %start start_state
 %glr-parser
 %{
@@ -34,6 +35,15 @@ int returnscope(char* identifier)
      }
      return -1;
 }
+/*char* returntype(char* identifier)
+{
+	int j;
+    for(j=0;j<i;j++)
+    {
+        if(!strcmp(table[j].identifier,identifier))
+            return table[j].datatype;
+     }
+}*/
 %}
 
 %%
@@ -49,21 +59,41 @@ statement : compound
           | declaration
           | print
           | main
+	  | function {printf("fsy");}
           ;
   
+return_statement : RETURN constant ';' {$$=$2;}
+		;
+
+function : type ID '(' ')' compound
+	{
+		printf("%s %s\n",$1,$5);
+		if(strcmp($1,$5))
+			printf("ERR in type matching");
+		else insert($1,$2,stack);
+	}
+	;
 declaration : type ID '=' constant ';'
             {
 		if(strcmp($1,$4))
 			printf("Not matching type\n");
                else insert($1,$2,stack);
             }
+	    | type ID ';' 
+	    {
+		int x = returnscope($2);
+		if(x!=-1)
+			printf("Redeclaration\n");
+		else insert($1,$2,stack);
+	    }
             ;
 	
 constant : INT_CONST	{$$="int";}
 	| STR_CONST	{$$="char";}
 	;             
 compound : '{''}'
-        | '{' statement_list '}'
+        | '{' statement_list '}' {$$="void";}
+	| '{' statement_list return_statement '}' {$$=$3;}
          ;
          
 
@@ -81,6 +111,7 @@ main : type MAIN '(' ')'       {insert($1,$2,stack);};
 type
 	: INT {$$="int";}
 	| CHAR {$$="char";}
+	| VOID {$$="void";}
 	;	
 %%
 

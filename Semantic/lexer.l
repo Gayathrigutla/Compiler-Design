@@ -12,6 +12,8 @@
 "char" 			{yylval = strdup(yytext); return CHAR;}
 "main" 			{yylval = strdup(yytext); return MAIN;}
 "printf" 		{yylval = strdup(yytext); return PRINT;}
+"return"                {yylval = strdup(yytext); return RETURN;}
+"void"                  {yylval = strdup(yytext); return VOID;}
 [0-9]+ 			{yylval = strdup(yytext); return INT_CONST;}
 \"[^\n]*\" 		{yylval = strdup(yytext); return STR_CONST;}
 [A-Za-z_]([A-Za-z_]|[0-9])*  	{yylval = strdup(yytext); return ID;}
