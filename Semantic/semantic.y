@@ -80,9 +80,10 @@ void storeValue(char* token, char* value, int scope){
 		if(strcmp(table[i].token, token) == 0 && table[i].scope == scope) {
 			if(strcmp(table[i].type, "float") == 0)
 				table[i].fvalue = atof(value);
-			if(strcmp(table[i].type, "int") == 0){
+			if(strcmp(table[i].type, "int") == 0)
 				table[i].value = atoi(value);
-			}
+			if(strcmp(table[i].type, "char") == 0)
+				table[i].value = value;			
 			break;
 		}
 	}
@@ -105,7 +106,6 @@ void insert(char* token, char* type, int scope, char* value) {
 }
 
 void insertFunction(char* token, char* type, char* paramType, int numParams){
-	printf("\nInserting function %s\n", token);
 	if(!isPresent(token)){
 		strcpy(table[n].token, token);
 		strcpy(table[n].type, type);
@@ -118,9 +118,11 @@ void insertFunction(char* token, char* type, char* paramType, int numParams){
 	return;
 }
 
-void showSymbolTable(){ // to do check if float or int and print val accordingly; 9999
+void showSymbolTable(){ 
 	int i;
+	printf("\n\n--------------------------------------------------------------------------------------------\n\t\t\t\tSYMBOL TABLE\n--------------------------------------------------------------------------------------------\n");
 	printf("\n\nToken\tType\tParameterType\tNo of Parameters\tisFunction\tValue\t\tScope");
+	printf("\n-------------------------------------------------------------------------------------------------\n");
 	for(i = 1; i < n; ++i){
 		printf("\n%s\t%s\t%s\t\t%d\t\t\t%d\t\t",
 		table[i].token, 
@@ -129,7 +131,7 @@ void showSymbolTable(){ // to do check if float or int and print val accordingly
 		(table[i].isFunction ? table[i].numParams : 0),
 		table[i].isFunction);
 
-		!strcmp(table[i].type, "int") ? table[i].value==9999?printf("-\t\t"):printf("%d\t\t",table[i].value) : table[i].fvalue==9999.000000?printf("-\t\t"):printf("%f\t\t",table[i].fvalue);
+		!strcmp(table[i].type, "int") ? table[i].value==9999?printf("-\t\t"):printf("%d\t\t",table[i].value) : table[i].fvalue==9999.000000?printf("-\t\t"):printf("%f\t",table[i].fvalue);
 		printf("%d",table[i].scope);
 	}
 	printf("\n");
@@ -147,7 +149,7 @@ void end() {
 %left '+' '-'
 %left '*' '/' '%'
 %token IDENTIFIER 
-%token INT FOR RETURN PRINTF FLOAT VOID WHILE
+%token INT FOR RETURN PRINTF FLOAT VOID WHILE CHAR
 %token STRING_CONST INT_CONST FLOAT_CONST
 %token ADD_ASSIGN
 
@@ -198,6 +200,7 @@ type_specifier:
 	 INT 	{ $$ = "int"; strcpy(type, $1); }
 	| FLOAT { $$ = "float"; }
 	| VOID { $$ = "void"; }
+	| CHAR { $$ = "char"; }
 	;
 type_specifier_fn:
 	 INT 	{ $$ = "int"; }
@@ -261,12 +264,35 @@ all_expression:
 		int a = atoi($1) + atoi($3);
 		sprintf(ans, "%d", a);
 		strcpy($$, ans);
-		printf("$$ %s", $$);
 	}
-	| all_expression '-' all_expression //{ $$ = $1 - $3;}
-	| all_expression '/' all_expression //{ $$ = $1 / $3;}
-	| all_expression '*' all_expression //{ $$ = $1 * $3;}
-	| all_expression '%' all_expression //{ $$ = $1 % $3;}
+	| all_expression '-' all_expression 
+	{ 
+		char ans[100];
+		int a = atoi($1) - atoi($3);
+		sprintf(ans, "%d", a);
+		strcpy($$, ans);
+	}
+	| all_expression '/' all_expression 
+	{ 
+		char ans[100];
+		int a = atoi($1) / atoi($3);
+		sprintf(ans, "%d", a);
+		strcpy($$, ans);
+	}
+	| all_expression '*' all_expression 
+	{ 
+		char ans[100];
+		int a = atoi($1) * atoi($3);
+		sprintf(ans, "%d", a);
+		strcpy($$, ans);
+	}
+	| all_expression '%' all_expression 
+	{ 
+		char ans[100];
+		int a = atoi($1) % atoi($3);
+		sprintf(ans, "%d", a);
+		strcpy($$, ans);
+	}
 	;
 	
 fundamental_expression:
@@ -353,22 +379,34 @@ function_call_statement:
 	}
     | IDENTIFIER '(' INT_CONST ')'';'
 	{
-		if(!isPresent($1))
+		if(!isPresent($1)){
 			printf("\nError Undeclared function at line no %d\n", yylineno);
-		else if(getNumParams($1) != 1)
+			end();
+		}
+		else if(getNumParams($1) != 1){ 
 			printf("\nError No of parameters does not match signature at line no %d\n", yylineno);
-		else if(strcmp(getParamType($1), "int") != 0)
-			printf("\nError Parameter type does not match signature at line no %d\n", yylineno);		
+			end();
+		}
+		else if(strcmp(getParamType($1), "int") != 0){
+			printf("\nError Parameter type does not match signature at line no %d\n", yylineno);
+			end();
+		}		
 
 	}
 	| IDENTIFIER '(' FLOAT_CONST ')' ';'
 	{
-		if(!isPresent($1))
+		if(!isPresent($1)){
 			printf("Error Undeclared function at line no %d\n", yylineno);
-		else if(getNumParams($1) != 1)
+			end();
+		}
+		else if(getNumParams($1) != 1){
 			printf("Error No of parameters does not match signature at line no %d\n", yylineno);
-		else if(strcmp(getParamType($1), "float") != 0)
-			printf("Error Parameter type does not match signature at line no %d\n", yylineno);	
+			end();
+		}
+		else if(strcmp(getParamType($1), "float") != 0){
+			printf("Error Parameter type does not match signature at line no %d\n", yylineno);
+			end();
+		}	
 
 	}
 	;
@@ -386,7 +424,7 @@ declaration:
 				insert(dec_info[i].id, $1, scope, dec_info[i].value);
 			else{
 				printf("\nError: Redeclaration of variable at line no %d\n", yylineno);
-				return 0;
+				end();
 			}
 		}
 		var = 0;
