@@ -13,12 +13,12 @@ int yylineno;
 #include[" "]*\"[a-zA-Z]+\.h\" {}
 
 
-\"[^\n]*\" { yylval = yytext; return STRING_CONST; }
-[0-9]+ { yylval = yytext; return INT_CONST; }
-[0-9]+\.[0-9]+ { yylval = yytext; return FLOAT_CONST; }
+\"[^\n]*\" { yylval = strdup(yytext); return STRING_CONST; }
+[0-9]+ { yylval = strdup(yytext); return INT_CONST; }
+[0-9]+\.[0-9]+ { yylval = strdup(yytext); return FLOAT_CONST;}
 
-"{" { yylval = strdup(yytext); return ('{'); }
-"}" { yylval = strdup(yytext); return ('}'); }
+"{" { startBlock(); yylval = strdup(yytext); return ('{'); }
+"}" { endBlock(); yylval = strdup(yytext); return ('}'); }
 "(" { yylval = strdup(yytext); return ('('); }
 ")" { yylval = strdup(yytext); return (')'); }
 "=" { yylval = strdup(yytext); return ('='); }
@@ -34,9 +34,15 @@ int yylineno;
 "+=" { yylval = strdup(yytext); return ADD_ASSIGN; }
 
 "int" { yylval = strdup(yytext); return INT; }
+"float" { yylval = strdup(yytext); return FLOAT; }
+"void" { yylval = strdup(yytext); return VOID; }
 "for" { yylval = strdup(yytext); return FOR; }
 "return" { yylval = strdup(yytext); return RETURN; }
 "printf" { yylval = strdup(yytext); return PRINTF; }
+"while" { yylval = strdup(yytext); return WHILE; }
+"char" { yylval = strdup(yytext); return CHAR; }
+"if" { yylval = strdup(yytext); return IF; }
+"else" { yylval = strdup(yytext); return ELSE; }
 
 [A-Za-z_]([A-Za-z0-9_])* {yylval = strdup(yytext); return IDENTIFIER; }
 
@@ -56,4 +62,5 @@ void multiline() {
 	if(!(c == '*' && c1 == '/'))
 		putchar(c1);
 }
+
 
