@@ -154,7 +154,7 @@ void gencode()
     //    printf("%d %s\n", i, tokenstack[i]);
 	strcpy(temp,"t");
 	strcat(temp,i_);
-	printf("----------%s = %s %s %s\n",temp,tokenstack[top-2],tokenstack[top-1],tokenstack[top]);
+	printf("%s = %s %s %s\n",temp,tokenstack[top-2],tokenstack[top-1],tokenstack[top]);
 	top-=2;
 	strcpy(tokenstack[top],temp);
 	i_[0]++;
@@ -165,7 +165,7 @@ void gencodeAssignment()
 	// int i;
 	// for(i = 0; i <= top; ++i)
     //    printf("--%d %s\n", i, tokenstack[i]);
-	printf("----------%s = %s\n",tokenstack[top-2],tokenstack[top]);
+	printf("%s = %s\n",tokenstack[top-2],tokenstack[top]);
 	top-=2;
 }
 
@@ -179,8 +179,8 @@ void dummy_if1()
 	label_index++;
 	strcpy(temp,"t");
 	strcat(temp,i_);
-	printf("----------%s = not %s\n",temp,tokenstack[top]);
- 	printf("----------if %s goto L%d\n",temp,label_index);
+	printf("%s = not %s\n",temp,tokenstack[top]);
+ 	printf("if %s goto L%d\n",temp,label_index);
 	i_[0]++;
 	label[++ltop]=label_index;
 }
@@ -188,37 +188,37 @@ void dummy_if1()
 void dummy_if2()
 {
 	label_index++;
-	printf("----------goto L%d\n",label_index);
-	printf("----------L%d: \n",label[ltop--]);
+	printf("goto L%d\n",label_index);
+	printf("L%d: \n",label[ltop--]);
 	label[++ltop]=label_index;
 }
 
 void dummy_if3()
 {
-	printf("----------L%d:\n",label[ltop--]);
+	printf("L%d:\n",label[ltop--]);
 }
 
 void dummy_w1()
 {
 	label_index++;
 	label[++ltop]=label_index;
-	printf("----------L%d:\n",label_index);
+	printf("L%d:\n",label_index);
 }
 void dummy_w2()
 {
 	label_index++;
 	strcpy(temp,"t");
 	strcat(temp,i_);
-	printf("----------%s = not %s\n",temp,tokenstack[top--]);
- 	printf("----------if %s goto L%d\n",temp,label_index);
+	printf("%s = not %s\n",temp,tokenstack[top--]);
+ 	printf("if %s goto L%d\n",temp,label_index);
 	i_[0]++;
 	label[++ltop]=label_index;
 }
 void dummy_w3()
 {
 	int y=label[ltop--];
-	printf("----------goto L%d\n",label[ltop--]);
-	printf("----------L%d:\n",y);
+	printf("goto L%d\n",label[ltop--]);
+	printf("L%d:\n",y);
 }
 
 %}
